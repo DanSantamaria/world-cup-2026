@@ -30,6 +30,10 @@ export interface Score {
   matchId: number;
   homeGoals: number;
   awayGoals: number;
+  homeYellowCards: number;
+  awayYellowCards: number;
+  homeRedCards: number;
+  awayRedCards: number;
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -53,6 +57,7 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  disciplinaryPoints: number; // yellow*1 + red*3; lower is better
 }
 
 // View-layer composites (serialisable, passed server → client)
@@ -63,11 +68,38 @@ export interface MatchWithTeams {
   awayTeam: Team;
   matchDate: string | null; // pre-formatted "Jun 11" server-side
   venue: string | null;
-  score?: { homeGoals: number; awayGoals: number };
+  score?: {
+    homeGoals: number;
+    awayGoals: number;
+    homeYellowCards?: number;
+    awayYellowCards?: number;
+    homeRedCards?: number;
+    awayRedCards?: number;
+  };
 }
 
 export interface GroupData {
   group: Group;
   standings: Standing[];
   matches: MatchWithTeams[];
+}
+
+// ── Bracket ───────────────────────────────────────────────────────────────
+
+export interface ResolvedSlot {
+  label: string;  // raw slot: "1A", "T3", "WM73", "LM101"
+  team?: Team;    // resolved team if known
+}
+
+export interface BracketMatchData {
+  id: number;
+  matchNumber: number;
+  round: string;
+  matchDate: string | null;
+  venue: string | null;
+  home: ResolvedSlot;
+  away: ResolvedSlot;
+  score?: { homeGoals: number; awayGoals: number };
+  winnerId?: number;  // home or away team id (knockout: no draws)
+  loserId?: number;   // for 3rd-place slot resolution
 }

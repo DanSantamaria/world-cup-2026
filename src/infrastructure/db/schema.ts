@@ -47,6 +47,11 @@ export const scores = pgTable('scores', {
   matchId: integer('match_id').references(() => matches.id).notNull(),
   homeGoals: integer('home_goals').notNull(),
   awayGoals: integer('away_goals').notNull(),
+  // Disciplinary: yellow=1pt, direct red=3pts, yellow+red=3pts (subsumed)
+  homeYellowCards: integer('home_yellow_cards').notNull().default(0),
+  awayYellowCards: integer('away_yellow_cards').notNull().default(0),
+  homeRedCards: integer('home_red_cards').notNull().default(0),
+  awayRedCards: integer('away_red_cards').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({

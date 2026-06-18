@@ -7,9 +7,10 @@ import type { MatchWithTeams } from '@/domain/types';
 interface Props {
   match: MatchWithTeams;
   onClose: () => void;
+  isKnockout?: boolean;
 }
 
-export function ScoreModal({ match, onClose }: Props): React.ReactElement {
+export function ScoreModal({ match, onClose, isKnockout = false }: Props): React.ReactElement {
   const [state, action, pending] = useActionState(upsertScoreAction, {});
   const homeRef = useRef<HTMLInputElement>(null);
 
@@ -64,6 +65,7 @@ export function ScoreModal({ match, onClose }: Props): React.ReactElement {
         {/* Score entry form */}
         <form action={action} className="space-y-4">
           <input type="hidden" name="matchId" value={match.id} />
+          {isKnockout && <input type="hidden" name="isKnockout" value="true" />}
 
           <div className="flex items-center gap-3">
             <input
@@ -91,6 +93,61 @@ export function ScoreModal({ match, onClose }: Props): React.ReactElement {
               required
             />
           </div>
+
+          {/* Card inputs — group stage only (used for disciplinary tiebreaker) */}
+          {!isKnockout && (
+            <div className="border border-amber-200 rounded-xl px-3 py-2.5 bg-white/60">
+              <p className="text-[10px] font-mono text-amber-500 uppercase tracking-wider mb-2">
+                Cards · Y=1pt · Direct red=3pts · Y+R=3pts
+              </p>
+              <div className="grid grid-cols-[1fr_auto_auto] gap-x-2 gap-y-1.5 items-center text-xs font-mono">
+                {/* Header row */}
+                <span />
+                <span className="text-[10px] text-amber-400 text-center w-10">Home</span>
+                <span className="text-[10px] text-amber-400 text-center w-10">Away</span>
+                {/* Yellow cards */}
+                <span className="text-amber-700">🟨 Yellow</span>
+                <input
+                  name="homeYellowCards"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={20}
+                  defaultValue={match.score?.homeYellowCards ?? 0}
+                  className="w-10 h-8 text-sm font-mono font-bold text-center text-amber-900 bg-white border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                />
+                <input
+                  name="awayYellowCards"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={20}
+                  defaultValue={match.score?.awayYellowCards ?? 0}
+                  className="w-10 h-8 text-sm font-mono font-bold text-center text-amber-900 bg-white border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                />
+                {/* Red cards */}
+                <span className="text-amber-700">🟥 Red</span>
+                <input
+                  name="homeRedCards"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={11}
+                  defaultValue={match.score?.homeRedCards ?? 0}
+                  className="w-10 h-8 text-sm font-mono font-bold text-center text-amber-900 bg-white border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                />
+                <input
+                  name="awayRedCards"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={11}
+                  defaultValue={match.score?.awayRedCards ?? 0}
+                  className="w-10 h-8 text-sm font-mono font-bold text-center text-amber-900 bg-white border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+          )}
 
           {state.error && (
             <p className="text-sm font-mono text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2 text-center">

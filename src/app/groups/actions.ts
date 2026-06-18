@@ -25,7 +25,19 @@ export async function upsertScoreAction(
     return { error: 'Goals must be between 0 and 30.' };
   }
 
-  await upsertScore(userId, matchId, homeGoals, awayGoals);
+  const isKnockout = formData.get('isKnockout') === 'true';
+  if (isKnockout && homeGoals === awayGoals) {
+    return { error: 'Knockout matches must have a winner — enter the score after extra time / penalties.' };
+  }
+
+  const clamp = (v: number, max: number) => Math.max(0, Math.min(max, isNaN(v) ? 0 : v));
+  const homeYellowCards = clamp(parseInt(formData.get('homeYellowCards') as string), 20);
+  const awayYellowCards = clamp(parseInt(formData.get('awayYellowCards') as string), 20);
+  const homeRedCards = clamp(parseInt(formData.get('homeRedCards') as string), 11);
+  const awayRedCards = clamp(parseInt(formData.get('awayRedCards') as string), 11);
+
+  await upsertScore(userId, matchId, homeGoals, awayGoals, homeYellowCards, awayYellowCards, homeRedCards, awayRedCards);
   revalidatePath('/groups');
+  revalidatePath('/bracket');
   return { success: true };
 }

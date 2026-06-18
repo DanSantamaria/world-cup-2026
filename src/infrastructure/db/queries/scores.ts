@@ -19,12 +19,16 @@ export async function upsertScore(
   matchId: number,
   homeGoals: number,
   awayGoals: number,
+  homeYellowCards: number,
+  awayYellowCards: number,
+  homeRedCards: number,
+  awayRedCards: number,
 ): Promise<void> {
   await db
     .insert(scores)
-    .values({ userId, matchId, homeGoals, awayGoals })
+    .values({ userId, matchId, homeGoals, awayGoals, homeYellowCards, awayYellowCards, homeRedCards, awayRedCards })
     .onConflictDoUpdate({
       target: [scores.userId, scores.matchId],
-      set: { homeGoals, awayGoals, updatedAt: sql`now()` },
+      set: { homeGoals, awayGoals, homeYellowCards, awayYellowCards, homeRedCards, awayRedCards, updatedAt: sql`now()` },
     });
 }

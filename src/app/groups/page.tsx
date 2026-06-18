@@ -44,7 +44,14 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
       matchDate: m.matchDate ? formatDate(m.matchDate) : null,
       venue: m.venue,
       score: scoresMap.has(m.id)
-        ? { homeGoals: scoresMap.get(m.id)!.homeGoals, awayGoals: scoresMap.get(m.id)!.awayGoals }
+        ? {
+            homeGoals: scoresMap.get(m.id)!.homeGoals,
+            awayGoals: scoresMap.get(m.id)!.awayGoals,
+            homeYellowCards: scoresMap.get(m.id)!.homeYellowCards,
+            awayYellowCards: scoresMap.get(m.id)!.awayYellowCards,
+            homeRedCards: scoresMap.get(m.id)!.homeRedCards,
+            awayRedCards: scoresMap.get(m.id)!.awayRedCards,
+          }
         : undefined,
     }));
 
