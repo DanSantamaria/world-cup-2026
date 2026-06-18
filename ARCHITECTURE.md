@@ -39,7 +39,7 @@ schema.ts               # Drizzle schema
 
 client.ts               # Neon connection
 
-seed.ts                 # All 48 teams + 104 matches
+seed.ts                 # All 48 teams + 72 matches
 
 auth/
 
