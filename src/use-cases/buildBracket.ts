@@ -250,7 +250,6 @@ export function buildBracket(
             loserId = home.team.id;
           }
         }
-
       }
     }
 
@@ -263,7 +262,12 @@ export function buildBracket(
       home,
       away,
       score: score
-        ? { homeGoals: score.homeGoals, awayGoals: score.awayGoals }
+        ? {
+            homeGoals: score.homeGoals,
+            awayGoals: score.awayGoals,
+            homePenalties: score.homePenalties,
+            awayPenalties: score.awayPenalties,
+          }
         : undefined,
       winnerId,
       loserId,

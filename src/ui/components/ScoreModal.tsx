@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { upsertScoreAction } from '@/app/groups/actions';
 import type { MatchWithTeams } from '@/domain/types';
 
@@ -14,6 +14,18 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
   const [state, action, pending] = useActionState(upsertScoreAction, {});
   const homeRef = useRef<HTMLInputElement>(null);
 
+  // Controlled values needed to derive penalty-section visibility in real time
+  const [homeStr, setHomeStr] = useState(match.score?.homeGoals?.toString() ?? '');
+  const [awayStr, setAwayStr] = useState(match.score?.awayGoals?.toString() ?? '');
+
+  const homeNum = parseInt(homeStr);
+  const awayNum = parseInt(awayStr);
+  const showPenalties =
+    isKnockout &&
+    homeStr !== '' && awayStr !== '' &&
+    !isNaN(homeNum) && !isNaN(awayNum) &&
+    homeNum === awayNum;
+
   useEffect(() => {
     homeRef.current?.focus();
   }, []);
@@ -21,6 +33,10 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
   useEffect(() => {
     if (state.success) onClose();
   }, [state.success, onClose]);
+
+  // Pre-fill saved penalty values when the section is initially visible
+  const savedHomePen = match.score?.homePenalties;
+  const savedAwayPen = match.score?.awayPenalties;
 
   return (
     <div
@@ -67,6 +83,7 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
           <input type="hidden" name="matchId" value={match.id} />
           {isKnockout && <input type="hidden" name="isKnockout" value="true" />}
 
+          {/* Goals (90 min + ET) */}
           <div className="flex items-center gap-3">
             <input
               ref={homeRef}
@@ -75,7 +92,8 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               inputMode="numeric"
               min={0}
               max={30}
-              defaultValue={match.score?.homeGoals ?? ''}
+              value={homeStr}
+              onChange={(e) => setHomeStr(e.target.value)}
               placeholder="–"
               className="flex-1 h-16 text-3xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
             />
@@ -86,11 +104,47 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               inputMode="numeric"
               min={0}
               max={30}
-              defaultValue={match.score?.awayGoals ?? ''}
+              value={awayStr}
+              onChange={(e) => setAwayStr(e.target.value)}
               placeholder="–"
               className="flex-1 h-16 text-3xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
             />
           </div>
+
+          {/* Penalty shootout — appears only when knockout goals are tied */}
+          {showPenalties && (
+            <div className="border border-amber-300 rounded-xl px-4 py-3 bg-white/60">
+              <p className="text-[10px] font-mono text-amber-500 uppercase tracking-wider mb-3 text-center">
+                Penalty shootout
+              </p>
+              <div className="flex items-center gap-3">
+                <input
+                  name="homePenalties"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={20}
+                  defaultValue={savedHomePen ?? ''}
+                  placeholder="–"
+                  className="flex-1 h-12 text-2xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
+                />
+                <span className="text-lg font-mono font-bold text-amber-400 shrink-0">P</span>
+                <input
+                  name="awayPenalties"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={20}
+                  defaultValue={savedAwayPen ?? ''}
+                  placeholder="–"
+                  className="flex-1 h-12 text-2xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
+                />
+              </div>
+              <p className="text-[10px] font-mono text-amber-400 text-center mt-2">
+                Leave empty to save as pending.
+              </p>
+            </div>
+          )}
 
           {/* Card inputs — group stage only (used for disciplinary tiebreaker) */}
           {!isKnockout && (

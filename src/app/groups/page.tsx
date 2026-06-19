@@ -48,6 +48,8 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
         ? {
             homeGoals: scoresMap.get(m.id)!.homeGoals,
             awayGoals: scoresMap.get(m.id)!.awayGoals,
+            homePenalties: scoresMap.get(m.id)!.homePenalties,
+            awayPenalties: scoresMap.get(m.id)!.awayPenalties,
             homeYellowCards: scoresMap.get(m.id)!.homeYellowCards,
             awayYellowCards: scoresMap.get(m.id)!.awayYellowCards,
             homeRedCards: scoresMap.get(m.id)!.homeRedCards,

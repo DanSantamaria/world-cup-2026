@@ -42,8 +42,31 @@ export async function upsertScoreAction(
   }
 
   const isKnockout = formData.get('isKnockout') === 'true';
+
+  // Parse penalty shootout result (knockout + tied goals only)
+  let homePenalties: number | null = null;
+  let awayPenalties: number | null = null;
+
   if (isKnockout && homeGoals === awayGoals) {
-    return { error: 'Knockout matches must have a winner — enter the score after extra time / penalties.' };
+    const hpStr = ((formData.get('homePenalties') as string) ?? '').trim();
+    const apStr = ((formData.get('awayPenalties') as string) ?? '').trim();
+
+    if (hpStr !== '' || apStr !== '') {
+      if (hpStr === '' || apStr === '') {
+        return { error: 'Enter both penalty scores, or leave both empty.' };
+      }
+      const hp = parseInt(hpStr);
+      const ap = parseInt(apStr);
+      if (isNaN(hp) || isNaN(ap) || hp < 0 || ap < 0) {
+        return { error: 'Invalid penalty values.' };
+      }
+      if (hp === ap) {
+        return { error: 'Penalty shootout cannot end in a draw.' };
+      }
+      homePenalties = hp;
+      awayPenalties = ap;
+    }
+    // both empty → null (pending, allowed)
   }
 
   const clamp = (v: number, max: number) => Math.max(0, Math.min(max, isNaN(v) ? 0 : v));
@@ -52,8 +75,9 @@ export async function upsertScoreAction(
   const homeRedCards = clamp(parseInt(formData.get('homeRedCards') as string), 11);
   const awayRedCards = clamp(parseInt(formData.get('awayRedCards') as string), 11);
 
-  await upsertScore(userId, matchId, homeGoals, awayGoals, homeYellowCards, awayYellowCards, homeRedCards, awayRedCards);
+  await upsertScore(userId, matchId, homeGoals, awayGoals, homePenalties, awayPenalties, homeYellowCards, awayYellowCards, homeRedCards, awayRedCards);
   revalidatePath('/groups');
   revalidatePath('/bracket');
+  revalidatePath('/schedule');
   return { success: true };
 }

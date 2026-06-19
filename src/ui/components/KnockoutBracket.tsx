@@ -303,23 +303,24 @@ function MatchCard({
       </div>
 
       {/* Home team row */}
-      <TeamRow slot={match.home} goals={match.score?.homeGoals} won={homeWon} />
+      <TeamRow slot={match.home} goals={match.score?.homeGoals} penalties={match.score?.homePenalties} won={homeWon} />
 
       {/* Divider */}
       <div className="border-t border-amber-100 shrink-0" />
 
       {/* Away team row */}
-      <TeamRow slot={match.away} goals={match.score?.awayGoals} won={awayWon} />
+      <TeamRow slot={match.away} goals={match.score?.awayGoals} penalties={match.score?.awayPenalties} won={awayWon} />
     </div>
   );
 }
 
 // ── Team row inside a card ────────────────────────────────────────────────
 function TeamRow({
-  slot, goals, won,
+  slot, goals, penalties, won,
 }: {
   slot: BracketMatchData['home'];
   goals: number | undefined;
+  penalties: number | null | undefined;
   won: boolean;
 }): React.ReactElement {
   return (
@@ -347,13 +348,24 @@ function TeamRow({
       )}
 
       {goals !== undefined && (
-        <span
-          className={`shrink-0 font-bold text-[11px] leading-none w-4 text-center ${
-            won ? 'text-green-700' : 'text-amber-600'
-          }`}
-        >
-          {goals}
-        </span>
+        <div className="shrink-0 flex items-baseline gap-0.5">
+          <span
+            className={`font-bold text-[11px] leading-none w-4 text-center ${
+              won ? 'text-green-700' : 'text-amber-600'
+            }`}
+          >
+            {goals}
+          </span>
+          {penalties != null && (
+            <span
+              className={`text-[8px] leading-none ${
+                won ? 'text-green-600' : 'text-amber-400'
+              }`}
+            >
+              ({penalties})
+            </span>
+          )}
+        </div>
       )}
     </div>
   );

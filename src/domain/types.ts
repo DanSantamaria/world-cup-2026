@@ -73,6 +73,8 @@ export interface MatchWithTeams {
   score?: {
     homeGoals: number;
     awayGoals: number;
+    homePenalties?: number | null;
+    awayPenalties?: number | null;
     homeYellowCards?: number;
     awayYellowCards?: number;
     homeRedCards?: number;
@@ -107,7 +109,7 @@ export interface BracketMatchData {
   venue: string | null;
   home: ResolvedSlot;
   away: ResolvedSlot;
-  score?: { homeGoals: number; awayGoals: number };
+  score?: { homeGoals: number; awayGoals: number; homePenalties?: number | null; awayPenalties?: number | null };
   winnerId?: number;  // home or away team id (knockout: no draws)
   loserId?: number;   // for 3rd-place slot resolution
 }
