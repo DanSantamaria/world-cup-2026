@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/infrastructure/auth';
-import { upsertScore } from '@/infrastructure/db/queries/scores';
+import { upsertScore, deleteScore } from '@/infrastructure/db/queries/scores';
 
 export type ScoreActionState = { error?: string; success?: boolean };
 
@@ -15,12 +15,28 @@ export async function upsertScoreAction(
 
   const userId = parseInt(session.user.id);
   const matchId = parseInt(formData.get('matchId') as string);
-  const homeGoals = parseInt(formData.get('homeGoals') as string);
-  const awayGoals = parseInt(formData.get('awayGoals') as string);
+  if (isNaN(matchId)) return { error: 'Invalid match.' };
 
-  if (isNaN(matchId) || isNaN(homeGoals) || isNaN(awayGoals)) {
-    return { error: 'Invalid score data.' };
+  const homeGoalsStr = (formData.get('homeGoals') as string).trim();
+  const awayGoalsStr = (formData.get('awayGoals') as string).trim();
+  const bothEmpty = homeGoalsStr === '' && awayGoalsStr === '';
+
+  if (bothEmpty) {
+    // User cleared both fields — remove the score (treat as unplayed)
+    await deleteScore(userId, matchId);
+    revalidatePath('/groups');
+    revalidatePath('/bracket');
+    return { success: true };
   }
+
+  if (homeGoalsStr === '' || awayGoalsStr === '') {
+    return { error: 'Enter both scores, or leave both empty to clear.' };
+  }
+
+  const homeGoals = parseInt(homeGoalsStr);
+  const awayGoals = parseInt(awayGoalsStr);
+
+  if (isNaN(homeGoals) || isNaN(awayGoals)) return { error: 'Invalid score data.' };
   if (homeGoals < 0 || awayGoals < 0 || homeGoals > 30 || awayGoals > 30) {
     return { error: 'Goals must be between 0 and 30.' };
   }

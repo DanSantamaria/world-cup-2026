@@ -5,8 +5,9 @@ import { signOutAction } from '@/app/dashboard/actions';
 import { getAllGroupStageData } from '@/infrastructure/db/queries/groups';
 import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
 import { calculateStandings } from '@/use-cases/calculateStandings';
+import { rankThirdPlacers } from '@/use-cases/determineAdvancing';
 import { GroupsPageClient } from '@/ui/components/GroupsPageClient';
-import type { GroupData, MatchWithTeams } from '@/domain/types';
+import type { GroupData, MatchWithTeams, RankedThird } from '@/domain/types';
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
@@ -58,6 +59,14 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
     return { group, standings, matches: matchesWithTeams };
   });
 
+  // Rank all 12 third-place teams for the qualifying table + color coding
+  const rankedThirds: RankedThird[] = rankThirdPlacers(
+    groupsData.map((gd) => ({ groupName: gd.group.name, standings: gd.standings })),
+  );
+  const qualifyingThirdTeamIds = rankedThirds
+    .filter((t) => t.qualifies)
+    .map((t) => t.standing.team.id);
+
   const totalPlayed = userScores.length;
   const totalMatches = 72;
 
@@ -76,6 +85,12 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
           <span className="font-mono text-xs text-amber-600 hidden sm:block">
             {totalPlayed}/{totalMatches} scored
           </span>
+          <Link
+            href="/schedule"
+            className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline"
+          >
+            Schedule
+          </Link>
           <Link
             href="/bracket"
             className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline"
@@ -97,12 +112,15 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
       <div className="px-4 pt-5 pb-1">
         <h1 className="font-mono font-bold text-lg text-amber-900">Group Stage</h1>
         <p className="font-mono text-xs text-amber-600 mt-0.5">
-          Tap any match to enter a score. Top 2 per group advance (green).
+          Tap any match to enter a score. Top 2 per group + best 8 thirds advance.
         </p>
       </div>
 
-      {/* Groups grid (client component handles interactivity) */}
-      <GroupsPageClient groupsData={groupsData} />
+      <GroupsPageClient
+        groupsData={groupsData}
+        rankedThirds={rankedThirds}
+        qualifyingThirdTeamIds={qualifyingThirdTeamIds}
+      />
     </div>
   );
 }

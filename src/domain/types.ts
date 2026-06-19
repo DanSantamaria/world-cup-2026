@@ -84,6 +84,12 @@ export interface GroupData {
   matches: MatchWithTeams[];
 }
 
+export interface RankedThird {
+  standing: Standing;
+  groupName: string;
+  qualifies: boolean; // true for top 8
+}
+
 // ── Bracket ───────────────────────────────────────────────────────────────
 
 export interface ResolvedSlot {

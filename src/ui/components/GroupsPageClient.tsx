@@ -3,19 +3,22 @@
 import { useState, useCallback } from 'react';
 import { GroupTable } from './GroupTable';
 import { ScoreModal } from './ScoreModal';
-import type { GroupData, MatchWithTeams } from '@/domain/types';
+import { ThirdPlaceTable } from './ThirdPlaceTable';
+import type { GroupData, MatchWithTeams, RankedThird } from '@/domain/types';
 
 interface Props {
   groupsData: GroupData[];
+  rankedThirds: RankedThird[];
+  qualifyingThirdTeamIds: number[];
 }
 
-export function GroupsPageClient({ groupsData }: Props): React.ReactElement {
+export function GroupsPageClient({ groupsData, rankedThirds, qualifyingThirdTeamIds }: Props): React.ReactElement {
   const [activeMatch, setActiveMatch] = useState<MatchWithTeams | null>(null);
   const handleClose = useCallback(() => setActiveMatch(null), []);
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 pb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 pb-4">
         {groupsData.map(({ group, standings, matches }) => (
           <GroupCard
             key={group.id}
@@ -23,8 +26,14 @@ export function GroupsPageClient({ groupsData }: Props): React.ReactElement {
             standings={standings}
             matches={matches}
             onMatchClick={setActiveMatch}
+            qualifyingThirdTeamIds={qualifyingThirdTeamIds}
           />
         ))}
+      </div>
+
+      {/* Best third-placed teams table */}
+      <div className="px-4 pb-16">
+        <ThirdPlaceTable rankedThirds={rankedThirds} />
       </div>
 
       {activeMatch && (
@@ -39,9 +48,10 @@ interface GroupCardProps {
   standings: GroupData['standings'];
   matches: GroupData['matches'];
   onMatchClick: (match: MatchWithTeams) => void;
+  qualifyingThirdTeamIds: number[];
 }
 
-function GroupCard({ groupName, standings, matches, onMatchClick }: GroupCardProps): React.ReactElement {
+function GroupCard({ groupName, standings, matches, onMatchClick, qualifyingThirdTeamIds }: GroupCardProps): React.ReactElement {
   return (
     <div className="bg-white border border-amber-200 rounded-lg overflow-hidden">
       {/* Group header */}
@@ -56,7 +66,7 @@ function GroupCard({ groupName, standings, matches, onMatchClick }: GroupCardPro
 
       {/* Standings table */}
       <div className="px-4 pt-3 pb-2">
-        <GroupTable standings={standings} />
+        <GroupTable standings={standings} qualifyingThirdTeamIds={qualifyingThirdTeamIds} />
       </div>
 
       {/* Divider */}

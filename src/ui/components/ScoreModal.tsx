@@ -76,9 +76,8 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               min={0}
               max={30}
               defaultValue={match.score?.homeGoals ?? ''}
-              placeholder="0"
+              placeholder="–"
               className="flex-1 h-16 text-3xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
-              required
             />
             <span className="text-2xl font-mono font-bold text-amber-400">–</span>
             <input
@@ -88,9 +87,8 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               min={0}
               max={30}
               defaultValue={match.score?.awayGoals ?? ''}
-              placeholder="0"
+              placeholder="–"
               className="flex-1 h-16 text-3xl font-mono font-bold text-center text-amber-900 bg-white border-2 border-amber-300 rounded-xl focus:outline-none focus:border-amber-500"
-              required
             />
           </div>
 
@@ -155,6 +153,10 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
             </p>
           )}
 
+          <p className="text-[10px] font-mono text-amber-400 text-center -mt-1">
+            Leave both scores empty to clear a result.
+          </p>
+
           <div className="flex gap-2">
             <button
               type="button"
@@ -168,7 +170,7 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               disabled={pending}
               className="flex-1 py-3 font-mono font-semibold text-sm text-white bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 rounded-xl transition-colors"
             >
-              {pending ? 'Saving…' : 'Save score'}
+              {pending ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>

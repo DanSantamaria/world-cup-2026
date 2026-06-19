@@ -14,6 +14,10 @@ export async function getUserScoresForMatches(
     .where(and(eq(scores.userId, userId), inArray(scores.matchId, matchIds)));
 }
 
+export async function deleteScore(userId: number, matchId: number): Promise<void> {
+  await db.delete(scores).where(and(eq(scores.userId, userId), eq(scores.matchId, matchId)));
+}
+
 export async function upsertScore(
   userId: number,
   matchId: number,

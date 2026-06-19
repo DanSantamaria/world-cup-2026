@@ -7,7 +7,7 @@ import { getAllKnockoutMatches } from '@/infrastructure/db/queries/knockout';
 import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
 import { calculateStandings } from '@/use-cases/calculateStandings';
 import { determineAdvancing } from '@/use-cases/determineAdvancing';
-import { buildBracket } from '@/use-cases/buildBracket';
+import { buildBracket, validateR32Uniqueness } from '@/use-cases/buildBracket';
 import { KnockoutBracket } from '@/ui/components/KnockoutBracket';
 
 export default async function BracketPage(): Promise<React.ReactElement> {
@@ -54,6 +54,11 @@ export default async function BracketPage(): Promise<React.ReactElement> {
   const slotMap = determineAdvancing(groupResults);
   const bracketMatches = buildBracket(knockoutMatches, knockoutScoresMap, slotMap);
 
+  if (process.env.NODE_ENV === 'development') {
+    const dupes = validateR32Uniqueness(bracketMatches);
+    if (dupes.length > 0) console.warn('[bracket] R32 uniqueness violations:', dupes);
+  }
+
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header */}
@@ -65,6 +70,9 @@ export default async function BracketPage(): Promise<React.ReactElement> {
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/groups" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
             ← Groups
+          </Link>
+          <Link href="/schedule" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
+            Schedule
           </Link>
           <form action={signOutAction}>
             <button type="submit" className="font-mono text-xs text-amber-500 hover:text-amber-700">
