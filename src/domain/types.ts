@@ -30,6 +30,8 @@ export interface Score {
   matchId: number;
   homeGoals: number;
   awayGoals: number;
+  homePenalties: number | null;
+  awayPenalties: number | null;
   homeYellowCards: number;
   awayYellowCards: number;
   homeRedCards: number;
