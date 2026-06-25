@@ -205,10 +205,10 @@ function Conn({
       // Right edge → midpoint (bracket elbow) → left edge (to child)
       paths.push(
         <g key={i} stroke="#d97706" strokeWidth={1} fill="none" opacity={0.6}>
-          <line x1={CONN_W} y1={p1} x2={mx} y2={p1} />
-          <line x1={CONN_W} y1={p2} x2={mx} y2={p2} />
+          <line x1={0} y1={p1} x2={mx} y2={p1} />
+          <line x1={0} y1={p2} x2={mx} y2={p2} />
           <line x1={mx} y1={p1} x2={mx} y2={p2} />
-          <line x1={mx} y1={c}  x2={0}  y2={c} />
+          <line x1={mx} y1={c}  x2={CONN_W}  y2={c} />
         </g>,
       );
     } else {
@@ -216,10 +216,10 @@ function Conn({
       // Left edge → midpoint (bracket elbow) → right edge (to child)
       paths.push(
         <g key={i} stroke="#d97706" strokeWidth={1} fill="none" opacity={0.6}>
-          <line x1={0}     y1={p1} x2={mx} y2={p1} />
-          <line x1={0}     y1={p2} x2={mx} y2={p2} />
+          <line x1={CONN_W}     y1={p1} x2={mx} y2={p1} />
+          <line x1={CONN_W}     y1={p2} x2={mx} y2={p2} />
           <line x1={mx}    y1={p1} x2={mx} y2={p2} />
-          <line x1={mx}    y1={c}  x2={CONN_W} y2={c} />
+          <line x1={mx}    y1={c}  x2={0} y2={c} />
         </g>,
       );
     }
