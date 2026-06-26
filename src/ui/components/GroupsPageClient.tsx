@@ -31,7 +31,6 @@ export function GroupsPageClient({ groupsData, rankedThirds, qualifyingThirdTeam
         ))}
       </div>
 
-      {/* Best third-placed teams table */}
       <div className="px-4 pb-16">
         <ThirdPlaceTable rankedThirds={rankedThirds} />
       </div>
@@ -52,28 +51,30 @@ interface GroupCardProps {
 }
 
 function GroupCard({ groupName, standings, matches, onMatchClick, qualifyingThirdTeamIds }: GroupCardProps): React.ReactElement {
+  const played = matches.filter((m) => m.score !== undefined).length;
+
   return (
-    <div className="bg-white border border-amber-200 rounded-lg overflow-hidden">
-      {/* Group header */}
-      <div className="bg-amber-600 px-4 py-2 flex items-center justify-between">
-        <h2 className="font-mono font-bold text-white text-sm tracking-wider">
-          GROUP {groupName}
+    <div className="bg-white rounded-lg overflow-hidden border border-ink/8">
+      {/* Gold header — white text */}
+      <div className="bg-gold px-4 py-2.5 flex items-center justify-between">
+        <h2 className="font-display text-[15px] text-white tracking-wide">
+          Group {groupName}
         </h2>
-        <span className="font-mono text-amber-200 text-xs">
-          {matches.filter((m) => m.score !== undefined).length}/{matches.length} played
+        <span className="text-[11px] text-white/65">
+          {played}/{matches.length} Played
         </span>
       </div>
 
-      {/* Standings table */}
+      {/* Standings */}
       <div className="px-4 pt-3 pb-2">
         <GroupTable standings={standings} qualifyingThirdTeamIds={qualifyingThirdTeamIds} />
       </div>
 
       {/* Divider */}
-      <div className="mx-4 border-t border-dashed border-amber-200 my-2" />
+      <div className="mx-4 border-t border-dashed border-gold/30 my-1.5" />
 
       {/* Matches */}
-      <div className="px-3 pb-3 space-y-1">
+      <div className="px-2 pb-3 space-y-0">
         {matches.map((match) => (
           <MatchRow key={match.id} match={match} onClick={() => onMatchClick(match)} />
         ))}
@@ -87,6 +88,26 @@ interface MatchRowProps {
   onClick: () => void;
 }
 
+function PencilIcon({ className = '' }: { className?: string }): React.ReactElement {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M8.5 1.5L10.5 3.5L4 10H2V8L8.5 1.5Z" />
+      <path d="M7 3L9 5" />
+    </svg>
+  );
+}
+
 function MatchRow({ match, onClick }: MatchRowProps): React.ReactElement {
   const hasScore = match.score !== undefined;
 
@@ -94,33 +115,33 @@ function MatchRow({ match, onClick }: MatchRowProps): React.ReactElement {
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left rounded-md px-2 py-1.5 hover:bg-amber-50 active:bg-amber-100 transition-colors group"
+      className="w-full text-left rounded px-2 py-1.5 hover:bg-ink/4 active:bg-ink/8 transition-colors group"
     >
       <div className="flex items-center gap-1 min-w-0">
-        {/* Match number + date */}
-        <span className="shrink-0 font-mono text-[10px] text-amber-400 w-12">
+        {/* Date — gold auxiliary text */}
+        <span className="shrink-0 text-[10px] text-gold w-12 tabular-nums font-medium">
           {match.matchDate ?? `#${match.matchNumber}`}
         </span>
 
         {/* Home team */}
-        <span className="font-mono text-xs text-amber-900 truncate flex-1 text-right">
+        <span className="text-[11px] text-ink/75 truncate flex-1 text-right">
           {match.homeTeam.flagEmoji} {match.homeTeam.countryCode}
         </span>
 
-        {/* Score or dash */}
-        <span className={`shrink-0 font-mono text-xs font-bold w-12 text-center ${hasScore ? 'text-amber-900' : 'text-amber-300'}`}>
+        {/* Score */}
+        <span className={`shrink-0 text-[11px] font-bold w-12 text-center tabular-nums ${hasScore ? 'text-ink' : 'text-ink/20'}`}>
           {hasScore
             ? `${match.score!.homeGoals} – ${match.score!.awayGoals}`
             : '· – ·'}
         </span>
 
         {/* Away team */}
-        <span className="font-mono text-xs text-amber-900 truncate flex-1">
+        <span className="text-[11px] text-ink/75 truncate flex-1">
           {match.awayTeam.countryCode} {match.awayTeam.flagEmoji}
         </span>
 
-        {/* Edit hint */}
-        <span className="shrink-0 text-amber-300 group-hover:text-amber-500 text-xs ml-1">✏</span>
+        {/* Pencil icon — always gold tint, brightens on hover */}
+        <PencilIcon className="shrink-0 text-gold/50 group-hover:text-gold transition-colors ml-1" />
       </div>
     </button>
   );

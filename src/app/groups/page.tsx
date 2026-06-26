@@ -61,7 +61,6 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
     return { group, standings, matches: matchesWithTeams };
   });
 
-  // Rank all 12 third-place teams for the qualifying table + color coding
   const rankedThirds: RankedThird[] = rankThirdPlacers(
     groupsData.map((gd) => ({ groupName: gd.group.name, standings: gd.standings })),
   );
@@ -69,54 +68,51 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
     .filter((t) => t.qualifies)
     .map((t) => t.standing.team.id);
 
-  const totalPlayed = userScores.length;
-  const totalMatches = 72;
-
   return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-amber-200 bg-white/90 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xl">⚽</span>
-          <span className="font-mono font-bold text-amber-900 text-sm truncate">
-            World Cup 2026
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="font-mono text-xs text-amber-600 hidden sm:block">
-            {totalPlayed}/{totalMatches} scored
-          </span>
-          <Link
-            href="/schedule"
-            className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline"
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/bracket"
-            className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline"
-          >
-            Bracket →
-          </Link>
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              className="font-mono text-xs text-amber-500 hover:text-amber-700"
-            >
-              Sign out
-            </button>
-          </form>
+    <div className="min-h-screen bg-paper">
+      {/* Non-sticky page header: logo + sign out */}
+      <header className="bg-paper pt-5 pb-3 px-4">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 max-w-5xl mx-auto">
+          <div />
+          <img
+            src="/scores-cup-logo.svg"
+            alt="Scores Cup 26"
+            className="h-20 w-auto"
+            draggable={false}
+          />
+          <div className="flex justify-end pt-1">
+            <form action={signOutAction}>
+              <button type="submit" className="text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
-      {/* Page title */}
-      <div className="px-4 pt-5 pb-1">
-        <h1 className="font-mono font-bold text-lg text-amber-900">Group Stage</h1>
-        <p className="font-mono text-xs text-amber-600 mt-0.5">
-          Tap any match to enter a score. Top 2 per group + best 8 thirds advance.
-        </p>
-      </div>
+      {/* Sticky 3-tab navigation */}
+      <nav className="sticky top-0 z-40">
+        <div className="flex">
+          <Link
+            href="/groups"
+            className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white bg-gold"
+          >
+            Group Stage
+          </Link>
+          <Link
+            href="/bracket"
+            className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white/85 bg-gold-dark"
+          >
+            Brackets
+          </Link>
+          <Link
+            href="/matches"
+            className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white/85 bg-gold-dark"
+          >
+            Matches
+          </Link>
+        </div>
+      </nav>
 
       <GroupsPageClient
         groupsData={groupsData}

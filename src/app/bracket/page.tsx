@@ -71,8 +71,8 @@ export default async function BracketPage(): Promise<React.ReactElement> {
           <Link href="/groups" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
             ← Groups
           </Link>
-          <Link href="/schedule" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
-            Schedule
+          <Link href="/matches" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
+            Matches
           </Link>
           <form action={signOutAction}>
             <button type="submit" className="font-mono text-xs text-amber-500 hover:text-amber-700">
