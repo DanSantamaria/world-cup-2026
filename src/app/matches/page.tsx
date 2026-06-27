@@ -8,7 +8,7 @@ import { getAllGroupStageData } from '@/infrastructure/db/queries/groups';
 import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
 import { calculateStandings } from '@/use-cases/calculateStandings';
 import { determineAdvancing } from '@/use-cases/determineAdvancing';
-import { formatDayHeader, formatRoundLabel, toMadridTime } from '@/lib/timezone';
+import { formatDayHeader, formatRoundLabel, toMadridTime, toMadridDateKey } from '@/lib/timezone';
 import { Footer } from '@/ui/components/Footer';
 import { JumpToTodayButton } from '@/ui/components/JumpToTodayButton';
 
@@ -40,7 +40,7 @@ function MatchCard({ match }: { match: ScheduleMatchRow }): React.ReactElement {
         </div>
         {madridTime && (
           <span className="text-[10px] text-gold/70 shrink-0 ml-2">
-            {madridTime} CET
+            {madridTime} CEST
           </span>
         )}
       </div>
@@ -107,9 +107,7 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
 
   const byDate = new Map<string, ScheduleMatchRow[]>();
   for (const row of resolvedRows) {
-    const key = row.matchDateUtc
-      ? row.matchDateUtc.toISOString().slice(0, 10)
-      : 'tbd';
+    const key = row.matchDateUtc ? toMadridDateKey(row.matchDateUtc) : 'tbd';
     if (!byDate.has(key)) byDate.set(key, []);
     byDate.get(key)!.push(row);
   }

@@ -23,15 +23,23 @@ export function venueTimezone(venue: string): string {
 
 /**
  * Returns the kickoff time in Madrid (Europe/Madrid, CEST during the tournament)
- * as "HH:MM", or null when only a date is stored (midnight UTC = no time component).
+ * as "HH:MM".
  */
-export function toMadridTime(utcDate: Date): string | null {
-  if (utcDate.getUTCHours() === 0 && utcDate.getUTCMinutes() === 0) return null;
+export function toMadridTime(utcDate: Date): string {
   return utcDate.toLocaleTimeString('en-GB', {
     timeZone: 'Europe/Madrid',
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+/**
+ * Returns the date in Madrid timezone as "YYYY-MM-DD".
+ * Used to group matches by local Madrid date so late-night matches
+ * (e.g. 23:30 UTC = 01:30 CEST next day) fall on the correct day header.
+ */
+export function toMadridDateKey(utcDate: Date): string {
+  return utcDate.toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
 }
 
 /** "2026-06-11" → "Thursday, June 11, 2026" */
