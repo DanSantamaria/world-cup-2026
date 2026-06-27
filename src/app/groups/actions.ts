@@ -2,9 +2,27 @@
 
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/infrastructure/auth';
-import { upsertScore, deleteScore } from '@/infrastructure/db/queries/scores';
+import { upsertScore, deleteScore, getReferenceScores } from '@/infrastructure/db/queries/scores';
 
 export type ScoreActionState = { error?: string; success?: boolean };
+
+export async function importReferenceScoresAction(): Promise<{ success: boolean }> {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false };
+  const userId = parseInt(session.user.id);
+
+  const refScores = await getReferenceScores();
+  await Promise.all(
+    refScores.map((s) =>
+      upsertScore(userId, s.matchId, s.homeGoals, s.awayGoals, s.homePenalties, s.awayPenalties,
+        s.homeYellowCards, s.awayYellowCards, s.homeRedCards, s.awayRedCards),
+    ),
+  );
+
+  revalidatePath('/groups');
+  revalidatePath('/bracket');
+  return { success: true };
+}
 
 export async function upsertScoreAction(
   _prev: ScoreActionState,

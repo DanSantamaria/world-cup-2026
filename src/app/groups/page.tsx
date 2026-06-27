@@ -8,6 +8,7 @@ import { calculateStandings } from '@/use-cases/calculateStandings';
 import { rankThirdPlacers } from '@/use-cases/determineAdvancing';
 import { GroupsPageClient } from '@/ui/components/GroupsPageClient';
 import { Footer } from '@/ui/components/Footer';
+import { isUserOutOfSync } from '@/infrastructure/db/queries/scores';
 import type { GroupData, MatchWithTeams, RankedThird } from '@/domain/types';
 
 function formatDate(date: Date): string {
@@ -26,7 +27,10 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
   const { groups, teams, matches } = await getAllGroupStageData();
 
   const matchIds = matches.map((m) => m.id);
-  const userScores = await getUserScoresForMatches(userId, matchIds);
+  const [userScores, outOfSync] = await Promise.all([
+    getUserScoresForMatches(userId, matchIds),
+    isUserOutOfSync(userId),
+  ]);
   const scoresMap = new Map(userScores.map((s) => [s.matchId, s]));
   const teamsMap = new Map(teams.map((t) => [t.id, t]));
 
@@ -119,6 +123,7 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
         groupsData={groupsData}
         rankedThirds={rankedThirds}
         qualifyingThirdTeamIds={qualifyingThirdTeamIds}
+        isOutOfSync={outOfSync}
       />
       <Footer />
     </div>

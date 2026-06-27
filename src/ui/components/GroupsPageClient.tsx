@@ -4,20 +4,23 @@ import { useState, useCallback } from 'react';
 import { GroupTable } from './GroupTable';
 import { ScoreModal } from './ScoreModal';
 import { ThirdPlaceTable } from './ThirdPlaceTable';
+import { SyncScoresBanner } from './SyncScoresBanner';
 import type { GroupData, MatchWithTeams, RankedThird } from '@/domain/types';
 
 interface Props {
   groupsData: GroupData[];
   rankedThirds: RankedThird[];
   qualifyingThirdTeamIds: number[];
+  isOutOfSync: boolean;
 }
 
-export function GroupsPageClient({ groupsData, rankedThirds, qualifyingThirdTeamIds }: Props): React.ReactElement {
+export function GroupsPageClient({ groupsData, rankedThirds, qualifyingThirdTeamIds, isOutOfSync }: Props): React.ReactElement {
   const [activeMatch, setActiveMatch] = useState<MatchWithTeams | null>(null);
   const handleClose = useCallback(() => setActiveMatch(null), []);
 
   return (
     <>
+      <SyncScoresBanner isOutOfSync={isOutOfSync} />
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 pb-4">
         {groupsData.map(({ group, standings, matches }) => (
           <GroupCard
