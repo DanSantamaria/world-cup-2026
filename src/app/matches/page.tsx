@@ -5,6 +5,7 @@ import { signOutAction } from '@/app/dashboard/actions';
 import { getScheduleMatches } from '@/infrastructure/db/queries/schedule';
 import type { ScheduleMatchRow } from '@/infrastructure/db/queries/schedule';
 import { formatDayHeader, formatRoundLabel, toMadridTime } from '@/lib/timezone';
+import { Footer } from '@/ui/components/Footer';
 
 function fmtSlot(raw: string): string {
   if (raw.startsWith('WM')) return `W${raw.slice(2)}`;
@@ -89,7 +90,7 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
   const days = [...byDate.entries()].sort(([a], [b]) => a.localeCompare(b));
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen flex flex-col bg-paper">
       {/* Non-sticky page header */}
       <header className="bg-paper pt-5 pb-3 px-4">
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 max-w-5xl mx-auto">
@@ -151,6 +152,7 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
           </section>
         ))}
       </div>
+      <Footer />
     </div>
   );
 }

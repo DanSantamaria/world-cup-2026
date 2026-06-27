@@ -9,6 +9,7 @@ import { calculateStandings } from '@/use-cases/calculateStandings';
 import { determineAdvancing } from '@/use-cases/determineAdvancing';
 import { buildBracket, validateR32Uniqueness } from '@/use-cases/buildBracket';
 import { KnockoutBracket } from '@/ui/components/KnockoutBracket';
+import { Footer } from '@/ui/components/Footer';
 
 export default async function BracketPage(): Promise<React.ReactElement> {
   const session = await auth();
@@ -60,7 +61,7 @@ export default async function BracketPage(): Promise<React.ReactElement> {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen flex flex-col bg-amber-50">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-amber-200 bg-white/90 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
@@ -97,6 +98,7 @@ export default async function BracketPage(): Promise<React.ReactElement> {
 
       {/* Bracket (horizontally scrollable on mobile) */}
       <KnockoutBracket matches={bracketMatches} />
+      <Footer />
     </div>
   );
 }

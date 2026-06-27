@@ -7,6 +7,7 @@ import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
 import { calculateStandings } from '@/use-cases/calculateStandings';
 import { rankThirdPlacers } from '@/use-cases/determineAdvancing';
 import { GroupsPageClient } from '@/ui/components/GroupsPageClient';
+import { Footer } from '@/ui/components/Footer';
 import type { GroupData, MatchWithTeams, RankedThird } from '@/domain/types';
 
 function formatDate(date: Date): string {
@@ -69,7 +70,7 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
     .map((t) => t.standing.team.id);
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen flex flex-col bg-paper">
       {/* Non-sticky page header: logo + sign out */}
       <header className="bg-paper pt-5 pb-3 px-4">
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 max-w-5xl mx-auto">
@@ -119,6 +120,7 @@ export default async function GroupsPage(): Promise<React.ReactElement> {
         rankedThirds={rankedThirds}
         qualifyingThirdTeamIds={qualifyingThirdTeamIds}
       />
+      <Footer />
     </div>
   );
 }
