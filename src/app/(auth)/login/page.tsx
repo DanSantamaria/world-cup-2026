@@ -10,7 +10,7 @@ export default function LoginPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setError(null);
     setPending(true);
@@ -33,12 +33,12 @@ export default function LoginPage(): React.ReactElement {
   }
 
   return (
-    <div className="bg-white border border-amber-200 rounded-lg p-8 shadow-sm">
-      <h2 className="text-xl font-bold font-mono text-amber-900 mb-6">Sign in</h2>
+    <div className="bg-white border border-ink/8 rounded-lg p-8">
+      <h2 className="font-display text-xl text-ink mb-6 tracking-wide">Sign in</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-mono font-medium text-amber-800 mb-1">
+          <label htmlFor="email" className="block text-sm text-ink/60 mb-1.5">
             Email
           </label>
           <input
@@ -47,13 +47,13 @@ export default function LoginPage(): React.ReactElement {
             type="email"
             required
             autoComplete="email"
-            className="w-full px-3 py-2 border border-amber-300 rounded-md font-mono text-sm text-amber-900 bg-amber-50 placeholder-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="you@example.com"
+            className="w-full px-3 py-2.5 border border-dashed border-ink/25 rounded-lg text-sm text-ink bg-white placeholder-ink/25 focus:outline-none focus:border-solid focus:border-gold transition-colors"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-mono font-medium text-amber-800 mb-1">
+          <label htmlFor="password" className="block text-sm text-ink/60 mb-1.5">
             Password
           </label>
           <input
@@ -62,13 +62,13 @@ export default function LoginPage(): React.ReactElement {
             type="password"
             required
             autoComplete="current-password"
-            className="w-full px-3 py-2 border border-amber-300 rounded-md font-mono text-sm text-amber-900 bg-amber-50 placeholder-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="••••••••"
+            className="w-full px-3 py-2.5 border border-dashed border-ink/25 rounded-lg text-sm text-ink bg-white placeholder-ink/25 focus:outline-none focus:border-solid focus:border-gold transition-colors"
           />
         </div>
 
         {error && (
-          <p className="text-sm font-mono text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
@@ -76,15 +76,15 @@ export default function LoginPage(): React.ReactElement {
         <button
           type="submit"
           disabled={pending}
-          className="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white font-mono font-semibold rounded-md transition-colors text-sm"
+          className="w-full py-3 px-4 bg-gold hover:bg-gold/90 disabled:bg-gold/40 text-white font-display text-sm tracking-wide rounded-lg transition-colors"
         >
           {pending ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm font-mono text-amber-700">
+      <p className="mt-6 text-center text-sm text-ink/50">
         No account?{' '}
-        <Link href="/register" className="font-semibold text-amber-900 hover:underline">
+        <Link href="/register" className="text-gold font-semibold hover:text-gold-dark transition-colors">
           Register
         </Link>
       </p>
