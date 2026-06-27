@@ -61,40 +61,43 @@ export default async function BracketPage(): Promise<React.ReactElement> {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-amber-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-amber-200 bg-white/90 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xl">⚽</span>
-          <span className="font-mono font-bold text-amber-900 text-sm">World Cup 2026</span>
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <Link href="/groups" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
-            ← Groups
-          </Link>
-          <Link href="/matches" className="font-mono text-xs text-amber-700 hover:text-amber-900 hover:underline">
-            Matches
-          </Link>
-          <form action={signOutAction}>
-            <button type="submit" className="font-mono text-xs text-amber-500 hover:text-amber-700">
-              Sign out
-            </button>
-          </form>
+    <div className="min-h-screen flex flex-col bg-paper">
+      {/* Non-sticky page header: logo + sign out */}
+      <header className="bg-paper pt-5 pb-3 px-4">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 max-w-5xl mx-auto">
+          <div />
+          <img
+            src="/scores-cup-logo.svg?v=2"
+            alt="Scores Cup 26"
+            className="h-20 w-auto"
+            draggable={false}
+          />
+          <div className="flex justify-end pt-1">
+            <form action={signOutAction}>
+              <button type="submit" className="text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
-      {/* Page title */}
-      <div className="px-4 pt-5 pb-2">
-        <h1 className="font-mono font-bold text-lg text-amber-900">Knockout Bracket</h1>
-        {!groupComplete && (
-          <p className="font-mono text-xs text-amber-500 mt-0.5">
-            {groupScoredCount}/72 group matches scored — slots fill as you enter scores.
-          </p>
-        )}
-        <p className="font-mono text-xs text-amber-600 mt-0.5">
-          Tap any match with known teams to enter a score.
-        </p>
-      </div>
+      {/* Sticky 3-tab navigation — Brackets is active */}
+      <nav className="sticky top-0 z-40">
+        <div className="flex">
+          <Link href="/groups" className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white/85 bg-gold-dark">
+            Group Stage
+          </Link>
+          <Link href="/bracket" className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white bg-gold">
+            Brackets
+          </Link>
+          <Link href="/matches" className="flex-1 py-3 text-center font-display text-[13px] tracking-wide text-white/85 bg-gold-dark">
+            Matches
+          </Link>
+        </div>
+      </nav>
+
+     
 
       {/* Bracket (horizontally scrollable on mobile) */}
       <KnockoutBracket matches={bracketMatches} />

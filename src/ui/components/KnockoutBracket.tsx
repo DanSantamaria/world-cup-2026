@@ -5,14 +5,17 @@ import { ScoreModal } from './ScoreModal';
 import type { BracketMatchData, MatchWithTeams } from '@/domain/types';
 
 // ── Layout constants (px) ────────────────────────────────────────────────
-const SLOT_H = 80;    // vertical space allocated per R32 slot
-const CARD_H = 64;    // total card height  (12 header + 25 home + 1 sep + 26 away)
-const CARD_W = 152;   // card + column width
-const HEADER_H = 36;  // round-label row height above cards
-const CONN_W = 18;    // SVG connector width between columns
-const COL_H = HEADER_H + 8 * SLOT_H; // 676
+const SLOT_H   = 80;   // vertical space per R32 slot
+const CARD_H   = 64;   // card height
+const CARD_W   = 118;  // reduced from 152 so the full bracket fits a 13" screen
+const HEADER_H = 36;   // round-label row above cards
+const CONN_W   = 12;   // connector SVG width between columns
+const COL_H    = HEADER_H + 8 * SLOT_H;
 
-// Vertical center of a card at `slotPos` in `roundIdx` (0=R32, 1=R16, 2=QF, 3=SF)
+// Brand colors used in SVG (Tailwind can't reach inside SVG attributes)
+const GOLD = '#B3944D';
+
+// Vertical center of a card
 function cy(ri: number, pos: number): number {
   return HEADER_H + (pos + 0.5) * Math.pow(2, ri) * SLOT_H;
 }
@@ -20,14 +23,12 @@ function cardTop(ri: number, pos: number): number {
   return Math.round(cy(ri, pos) - CARD_H / 2);
 }
 
-// ── Official FIFA 2026 bracket order (top→bottom per column) ─────────────
-// Left half: R32→R16→QF→SF converging to the Final at center
+// ── Official FIFA 2026 bracket order ─────────────────────────────────────
 const L_R32 = [74, 77, 73, 75, 83, 84, 81, 82];
 const L_R16 = [89, 90, 93, 94];
 const L_QF  = [97, 98];
 const L_SF  = [101];
 
-// Right half: SF→QF→R16→R32 mirrored from center outward
 const R_SF  = [102];
 const R_QF  = [99, 100];
 const R_R16 = [91, 92, 95, 96];
@@ -36,11 +37,6 @@ const R_R32 = [76, 78, 79, 80, 86, 88, 85, 87];
 const FINAL = 104;
 const THIRD = 103;
 
-// ── Format a raw DB slot label for display ───────────────────────────────
-// "WM74"  → "W74"     (winner of match 74)
-// "LM101" → "L101"    (loser of match 101)
-// "3ABCDF"→ "3rd"     (best qualifying 3rd from those groups)
-// "1E"    → "1E"       (group position labels unchanged)
 function fmtLabel(raw: string): string {
   if (raw.startsWith('WM')) return `W${raw.slice(2)}`;
   if (raw.startsWith('LM')) return `L${raw.slice(2)}`;
@@ -70,17 +66,17 @@ export function KnockoutBracket({ matches }: Props): React.ReactElement {
 
   return (
     <>
-      <div className="overflow-x-auto pb-6 select-none">
-        <div className="flex items-start min-w-max px-3 pb-4 pt-1">
+      <div className="overflow-x-auto pb-6 select-none pt-4">
+        <div className="flex items-start w-fit mx-auto px-2 pb-4 pt-1">
 
           {/* ── Left half ─────────────────────────────────────────── */}
-          <RoundCol label="R32"   nums={L_R32} ri={0} byNum={byNum} onOpen={open} />
+          <RoundCol label="R32" nums={L_R32} ri={0} byNum={byNum} onOpen={open} />
           <Conn parentRi={0} n={8} dir="right" />
-          <RoundCol label="R16"   nums={L_R16} ri={1} byNum={byNum} onOpen={open} />
+          <RoundCol label="R16" nums={L_R16} ri={1} byNum={byNum} onOpen={open} />
           <Conn parentRi={1} n={4} dir="right" />
-          <RoundCol label="QF"    nums={L_QF}  ri={2} byNum={byNum} onOpen={open} />
+          <RoundCol label="QF"  nums={L_QF}  ri={2} byNum={byNum} onOpen={open} />
           <Conn parentRi={2} n={2} dir="right" />
-          <RoundCol label="SF"    nums={L_SF}  ri={3} byNum={byNum} onOpen={open} />
+          <RoundCol label="SF"  nums={L_SF}  ri={3} byNum={byNum} onOpen={open} />
           <SFLine />
 
           {/* ── Center: Final + 3rd place ─────────────────────────── */}
@@ -88,13 +84,13 @@ export function KnockoutBracket({ matches }: Props): React.ReactElement {
 
           {/* ── Right half ────────────────────────────────────────── */}
           <SFLine />
-          <RoundCol label="SF"    nums={R_SF}  ri={3} byNum={byNum} onOpen={open} />
+          <RoundCol label="SF"  nums={R_SF}  ri={3} byNum={byNum} onOpen={open} />
           <Conn parentRi={2} n={2} dir="left" />
-          <RoundCol label="QF"    nums={R_QF}  ri={2} byNum={byNum} onOpen={open} />
+          <RoundCol label="QF"  nums={R_QF}  ri={2} byNum={byNum} onOpen={open} />
           <Conn parentRi={1} n={4} dir="left" />
-          <RoundCol label="R16"   nums={R_R16} ri={1} byNum={byNum} onOpen={open} />
+          <RoundCol label="R16" nums={R_R16} ri={1} byNum={byNum} onOpen={open} />
           <Conn parentRi={0} n={8} dir="left" />
-          <RoundCol label="R32"   nums={R_R32} ri={0} byNum={byNum} onOpen={open} />
+          <RoundCol label="R32" nums={R_R32} ri={0} byNum={byNum} onOpen={open} />
 
         </div>
       </div>
@@ -121,10 +117,7 @@ function RoundCol({
         const m = byNum.get(n);
         if (!m) return null;
         return (
-          <div
-            key={n}
-            style={{ position: 'absolute', top: cardTop(ri, pos), left: 0, right: 0 }}
-          >
+          <div key={n} style={{ position: 'absolute', top: cardTop(ri, pos), left: 0, right: 0 }}>
             <MatchCard match={m} onOpen={onOpen} />
           </div>
         );
@@ -133,7 +126,7 @@ function RoundCol({
   );
 }
 
-// ── Center column (Final + 3rd) ───────────────────────────────────────────
+// ── Center column (Final + 3rd place) ────────────────────────────────────
 function CenterCol({
   finalM, thirdM, onOpen,
 }: {
@@ -141,58 +134,51 @@ function CenterCol({
   thirdM?: BracketMatchData;
   onOpen: (m: BracketMatchData) => void;
 }): React.ReactElement {
-  const top = cardTop(3, 0); // align Final vertically with SF
-  const thirdTop = top + CARD_H + 20;
+  const top      = cardTop(3, 0);
+  const thirdTop = top + CARD_H + 44; // extra gap between Final and 3rd place
 
   return (
     <div style={{ width: CARD_W + 16, height: COL_H, position: 'relative', flexShrink: 0 }}>
-      {/* "Final" label */}
+      {/* Final label */}
       <div
-        style={{ position: 'absolute', top: top - 20, left: 0, right: 0 }}
-        className="text-center text-[10px] font-mono font-bold text-amber-600 uppercase tracking-widest"
+        style={{ position: 'absolute', top: top - 18, left: 0, right: 0 }}
+        className="text-center text-[9px] font-display text-gold-dark uppercase tracking-widest"
       >
         Final
       </div>
 
       {finalM && (
         <div style={{ position: 'absolute', top, left: 8, right: 8 }}>
-          <MatchCard match={finalM} onOpen={onOpen} highlight />
+          <MatchCard match={finalM} onOpen={onOpen} variant="final" />
         </div>
       )}
 
-      {/* "3rd place" label */}
+      {/* 3rd-place label */}
       <div
         style={{ position: 'absolute', top: thirdTop - 16, left: 0, right: 0 }}
-        className="text-center text-[9px] font-mono text-amber-400 uppercase tracking-wider"
+        className="text-center text-[9px] font-display text-gold uppercase tracking-wider"
       >
-        3rd-place play-off
+        3rd place
       </div>
 
       {thirdM && (
         <div style={{ position: 'absolute', top: thirdTop, left: 8, right: 8 }}>
-          <MatchCard match={thirdM} onOpen={onOpen} />
+          <MatchCard match={thirdM} onOpen={onOpen} variant="third" />
         </div>
       )}
     </div>
   );
 }
 
-// ── Connector SVG between adjacent round columns ──────────────────────────
-// parentRi: roundIdx of the denser (more-R32-ward) round
-// n:        number of parent cards
-// dir:      which side of the SVG the parent cards connect to
-//   "right" → parents exit from the right edge (left-half bracket, L_R32→L_R16→…)
-//   "left"  → parents exit from the left edge  (right-half bracket, R_R32→R_R16→…)
-function Conn({
-  parentRi, n, dir,
-}: {
+// ── Connector SVG ─────────────────────────────────────────────────────────
+function Conn({ parentRi, n, dir }: {
   parentRi: number;
   n: number;
   dir: 'left' | 'right';
 }): React.ReactElement {
-  const childRi = parentRi + 1;
+  const childRi    = parentRi + 1;
   const childCount = n / 2;
-  const mx = CONN_W / 2;
+  const mx         = CONN_W / 2;
 
   const paths: React.ReactElement[] = [];
   for (let i = 0; i < childCount; i++) {
@@ -201,53 +187,39 @@ function Conn({
     const c  = cy(childRi, i);
 
     if (dir === 'right') {
-      // Parents exit from the RIGHT edge of the SVG (left-half bracket)
-      // Right edge → midpoint (bracket elbow) → left edge (to child)
       paths.push(
-        <g key={i} stroke="#d97706" strokeWidth={1} fill="none" opacity={0.6}>
-          <line x1={0} y1={p1} x2={mx} y2={p1} />
-          <line x1={0} y1={p2} x2={mx} y2={p2} />
-          <line x1={mx} y1={p1} x2={mx} y2={p2} />
-          <line x1={mx} y1={c}  x2={CONN_W}  y2={c} />
+        <g key={i} stroke={GOLD} strokeWidth={1} fill="none" opacity={0.7}>
+          <line x1={0}      y1={p1} x2={mx}     y2={p1} />
+          <line x1={0}      y1={p2} x2={mx}     y2={p2} />
+          <line x1={mx}     y1={p1} x2={mx}     y2={p2} />
+          <line x1={mx}     y1={c}  x2={CONN_W} y2={c}  />
         </g>,
       );
     } else {
-      // Parents exit from the LEFT edge of the SVG (right-half bracket)
-      // Left edge → midpoint (bracket elbow) → right edge (to child)
       paths.push(
-        <g key={i} stroke="#d97706" strokeWidth={1} fill="none" opacity={0.6}>
-          <line x1={CONN_W}     y1={p1} x2={mx} y2={p1} />
-          <line x1={CONN_W}     y1={p2} x2={mx} y2={p2} />
-          <line x1={mx}    y1={p1} x2={mx} y2={p2} />
-          <line x1={mx}    y1={c}  x2={0} y2={c} />
+        <g key={i} stroke={GOLD} strokeWidth={1} fill="none" opacity={0.7}>
+          <line x1={CONN_W} y1={p1} x2={mx} y2={p1} />
+          <line x1={CONN_W} y1={p2} x2={mx} y2={p2} />
+          <line x1={mx}     y1={p1} x2={mx} y2={p2} />
+          <line x1={mx}     y1={c}  x2={0}  y2={c}  />
         </g>,
       );
     }
   }
 
   return (
-    <svg
-      width={CONN_W}
-      height={COL_H}
-      style={{ flexShrink: 0, display: 'block' }}
-      aria-hidden="true"
-    >
+    <svg width={CONN_W} height={COL_H} style={{ flexShrink: 0, display: 'block' }} aria-hidden="true">
       {paths}
     </svg>
   );
 }
 
-// ── Simple horizontal line connecting SF to the Final center column ────────
+// ── SF → Final horizontal line ────────────────────────────────────────────
 function SFLine(): React.ReactElement {
-  const y = cy(3, 0); // same y as the SF card center
+  const y = cy(3, 0);
   return (
-    <svg
-      width={CONN_W}
-      height={COL_H}
-      style={{ flexShrink: 0, display: 'block' }}
-      aria-hidden="true"
-    >
-      <line x1={0} y1={y} x2={CONN_W} y2={y} stroke="#d97706" strokeWidth={1} opacity={0.6} />
+    <svg width={CONN_W} height={COL_H} style={{ flexShrink: 0, display: 'block' }} aria-hidden="true">
+      <line x1={0} y1={y} x2={CONN_W} y2={y} stroke={GOLD} strokeWidth={1} opacity={0.7} />
     </svg>
   );
 }
@@ -257,7 +229,7 @@ function RoundHeader({ children }: { children: React.ReactNode }): React.ReactEl
   return (
     <div
       style={{ height: HEADER_H }}
-      className="flex items-center justify-center text-[9px] font-mono font-bold uppercase tracking-widest text-amber-500 border-b border-amber-200"
+      className="flex items-center justify-center text-[9px] font-display uppercase tracking-widest text-gold-dark border-b border-gold/25"
     >
       {children}
     </div>
@@ -265,16 +237,24 @@ function RoundHeader({ children }: { children: React.ReactNode }): React.ReactEl
 }
 
 // ── Match card ────────────────────────────────────────────────────────────
+type CardVariant = 'default' | 'final' | 'third';
+
 function MatchCard({
-  match, onOpen, highlight = false,
+  match, onOpen, variant = 'default',
 }: {
   match: BracketMatchData;
   onOpen: (m: BracketMatchData) => void;
-  highlight?: boolean;
+  variant?: CardVariant;
 }): React.ReactElement {
   const canClick = !!match.home.team && !!match.away.team;
-  const homeWon = match.winnerId !== undefined && match.winnerId === match.home.team?.id;
-  const awayWon = match.winnerId !== undefined && match.winnerId === match.away.team?.id;
+  const homeWon  = match.winnerId !== undefined && match.winnerId === match.home.team?.id;
+  const awayWon  = match.winnerId !== undefined && match.winnerId === match.away.team?.id;
+
+  const borderClass: Record<CardVariant, string> = {
+    default: 'border border-ink/10',
+    final:   'border border-gold-dark',
+    third:   'border border-gold',
+  };
 
   return (
     <div
@@ -284,37 +264,32 @@ function MatchCard({
       onKeyDown={canClick ? (e) => e.key === 'Enter' && onOpen(match) : undefined}
       style={{ height: CARD_H }}
       className={[
-        'relative flex flex-col rounded border overflow-hidden font-mono text-xs',
-        highlight ? 'border-amber-500 shadow shadow-amber-100' : 'border-amber-200',
-        canClick
-          ? 'cursor-pointer hover:border-amber-400 hover:shadow-sm'
-          : 'cursor-default',
+        'relative flex flex-col rounded overflow-hidden bg-white',
+        borderClass[variant],
+        canClick ? 'cursor-pointer hover:border-gold/60 transition-colors' : 'cursor-default',
       ].join(' ')}
     >
-      {/* Card header: match code + date */}
-      <div className="flex items-center justify-between px-1.5 bg-amber-50 border-b border-amber-100"
-        style={{ height: 13 }}>
-        <span className={`text-[9px] font-bold tracking-wide ${highlight ? 'text-amber-600' : 'text-amber-400'}`}>
+      {/* Gold header: match number + date */}
+      <div
+        className="flex items-center justify-between px-1.5 bg-gold shrink-0"
+        style={{ height: 14 }}
+      >
+        <span className="text-[9px] font-bold tracking-wide text-white">
           M{match.matchNumber}
         </span>
         {match.matchDate && (
-          <span className="text-[8px] text-amber-300 font-normal">{match.matchDate}</span>
+          <span className="text-[8px] text-white/65">{match.matchDate}</span>
         )}
       </div>
 
-      {/* Home team row */}
       <TeamRow slot={match.home} goals={match.score?.homeGoals} penalties={match.score?.homePenalties} won={homeWon} />
-
-      {/* Divider */}
-      <div className="border-t border-amber-100 shrink-0" />
-
-      {/* Away team row */}
+      <div className="border-t border-ink/8 shrink-0" />
       <TeamRow slot={match.away} goals={match.score?.awayGoals} penalties={match.score?.awayPenalties} won={awayWon} />
     </div>
   );
 }
 
-// ── Team row inside a card ────────────────────────────────────────────────
+// ── Team row ──────────────────────────────────────────────────────────────
 function TeamRow({
   slot, goals, penalties, won,
 }: {
@@ -324,49 +299,40 @@ function TeamRow({
   won: boolean;
 }): React.ReactElement {
   return (
-    <div
-      className={`flex items-center gap-1 px-1.5 flex-1 ${won ? 'bg-green-50' : ''}`}
-    >
+    <div className={`flex items-center gap-1 px-1.5 flex-1 ${won ? 'bg-green-50' : ''}`}>
       {slot.team ? (
         <>
           <span className="text-sm leading-none shrink-0">{slot.team.flagEmoji}</span>
-          <span
-            className={`flex-1 truncate text-[11px] leading-none ${
-              won ? 'font-bold text-green-800' : 'text-amber-900'
-            }`}
-          >
+          <span className={`flex-1 truncate text-[11px] leading-none ${won ? 'font-bold text-green-800' : 'text-ink'}`}>
             {slot.team.countryCode}
           </span>
         </>
       ) : (
         <>
-          <span className="text-[11px] leading-none shrink-0 text-amber-200">—</span>
-          <span className="flex-1 truncate text-[10px] leading-none text-amber-300 italic">
+          <span className="text-[11px] leading-none shrink-0 text-ink/20">—</span>
+          <span className="flex-1 truncate text-[10px] leading-none text-ink/30 italic">
             {slot.label ? fmtLabel(slot.label) : '?'}
           </span>
         </>
       )}
 
-      {goals !== undefined && (
-        <div className="shrink-0 flex items-baseline gap-0.5">
-          <span
-            className={`font-bold text-[11px] leading-none w-4 text-center ${
-              won ? 'text-green-700' : 'text-amber-600'
-            }`}
-          >
-            {goals}
-          </span>
-          {penalties != null && (
-            <span
-              className={`text-[8px] leading-none ${
-                won ? 'text-green-600' : 'text-amber-400'
-              }`}
-            >
-              ({penalties})
+      <div className="shrink-0 flex items-baseline gap-0.5">
+        {goals !== undefined ? (
+          <>
+            <span className={`font-bold text-[11px] leading-none w-4 text-center ${won ? 'text-green-700' : 'text-ink/70'}`}>
+              {goals}
             </span>
-          )}
-        </div>
-      )}
+            {penalties != null && (
+              <span className={`text-[8px] leading-none ${won ? 'text-green-600' : 'text-ink/40'}`}>
+                ({penalties})
+              </span>
+            )}
+          </>
+        ) : (
+          // Placeholder when no score has been entered yet
+          <span className="text-[11px] leading-none w-4 text-center text-ink/20">–</span>
+        )}
+      </div>
     </div>
   );
 }
