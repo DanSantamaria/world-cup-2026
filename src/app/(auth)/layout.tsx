@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }):
       {/* Logo — same treatment as groups page */}
       <div className="mb-8">
         <img
-          src="/scores-cup-logo.svg"
+          src="/scores-cup-logo.svg?v=2"
           alt="Scores Cup 26"
           className="h-24 w-auto"
           draggable={false}

@@ -95,7 +95,7 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 max-w-5xl mx-auto">
           <div />
           <img
-            src="/scores-cup-logo.svg"
+            src="/scores-cup-logo.svg?v=2"
             alt="Scores Cup 26"
             className="h-20 w-auto"
             draggable={false}
