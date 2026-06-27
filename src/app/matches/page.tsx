@@ -6,6 +6,7 @@ import { getScheduleMatches } from '@/infrastructure/db/queries/schedule';
 import type { ScheduleMatchRow } from '@/infrastructure/db/queries/schedule';
 import { formatDayHeader, formatRoundLabel, toMadridTime } from '@/lib/timezone';
 import { Footer } from '@/ui/components/Footer';
+import { JumpToTodayButton } from '@/ui/components/JumpToTodayButton';
 
 function fmtSlot(raw: string): string {
   if (raw.startsWith('WM')) return `W${raw.slice(2)}`;
@@ -135,10 +136,15 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
         </div>
       </nav>
 
+      {/* Jump button */}
+      <div className="flex justify-center md:justify-end px-4 py-3">
+        <JumpToTodayButton dateKeys={days.map(([dateKey]) => dateKey)} />
+      </div>
+
       {/* Day sections */}
       <div className="pb-12">
         {days.map(([dateKey, dayMatches]) => (
-          <section key={dateKey}>
+          <section key={dateKey} id={`day-${dateKey}`} className="scroll-mt-[52px]">
             <div className="sticky top-[52px] z-30 bg-paper/95 backdrop-blur-sm border-y border-gold/20 px-4 py-2">
               <h2 className="font-display text-[11px] text-gold tracking-widest uppercase">
                 {dateKey === 'tbd' ? 'Date TBD' : formatDayHeader(dateKey)}
