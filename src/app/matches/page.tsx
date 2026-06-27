@@ -4,6 +4,10 @@ import { auth } from '@/infrastructure/auth';
 import { signOutAction } from '@/app/dashboard/actions';
 import { getScheduleMatches } from '@/infrastructure/db/queries/schedule';
 import type { ScheduleMatchRow } from '@/infrastructure/db/queries/schedule';
+import { getAllGroupStageData } from '@/infrastructure/db/queries/groups';
+import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
+import { calculateStandings } from '@/use-cases/calculateStandings';
+import { determineAdvancing } from '@/use-cases/determineAdvancing';
 import { formatDayHeader, formatRoundLabel, toMadridTime } from '@/lib/timezone';
 import { Footer } from '@/ui/components/Footer';
 import { JumpToTodayButton } from '@/ui/components/JumpToTodayButton';
@@ -78,10 +82,31 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
   if (!session?.user?.id) redirect('/login');
   const userId = parseInt(session.user.id);
 
-  const rows = await getScheduleMatches(userId);
+  const [rows, { groups, teams, matches: groupMatches }] = await Promise.all([
+    getScheduleMatches(userId),
+    getAllGroupStageData(),
+  ]);
+
+  // Build the slot→team map so R32 (and beyond) show resolved team names
+  const groupMatchIds = groupMatches.map((m) => m.id);
+  const groupScores = await getUserScoresForMatches(userId, groupMatchIds);
+  const groupResults = groups.map((group) => {
+    const groupTeams = teams.filter((t) => t.groupId === group.id);
+    const gMatches = groupMatches.filter((m) => m.groupId === group.id);
+    const gScores = groupScores.filter((s) => gMatches.some((m) => m.id === s.matchId));
+    return { groupName: group.name, standings: calculateStandings(groupTeams, gMatches, gScores) };
+  });
+  const slotMap = determineAdvancing(groupResults);
+
+  // Resolve knockout teams that the DB stores as slot labels (e.g. "1A", "2B")
+  const resolvedRows = rows.map((row) => ({
+    ...row,
+    homeTeam: row.homeTeam ?? (row.homeSlot ? (slotMap.get(row.homeSlot) ?? null) : null),
+    awayTeam: row.awayTeam ?? (row.awaySlot ? (slotMap.get(row.awaySlot) ?? null) : null),
+  }));
 
   const byDate = new Map<string, ScheduleMatchRow[]>();
-  for (const row of rows) {
+  for (const row of resolvedRows) {
     const key = row.matchDateUtc
       ? row.matchDateUtc.toISOString().slice(0, 10)
       : 'tbd';
