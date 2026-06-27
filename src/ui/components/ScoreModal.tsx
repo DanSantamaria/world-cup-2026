@@ -39,7 +39,7 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       role="dialog"
       aria-modal="true"
     >
@@ -50,7 +50,7 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
       />
 
       {/* Dialog */}
-      <div className="relative w-full sm:max-w-sm bg-paper border border-ink/15 rounded-t-2xl sm:rounded-2xl shadow-xl p-6">
+      <div className="relative w-full max-w-sm bg-paper border border-ink/15 rounded-2xl shadow-xl p-6">
         {/* Match header */}
         <div className="text-center mb-5">
           <p className="text-xs text-ink/50 mb-1">
@@ -145,18 +145,16 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
             </div>
           )}
 
-          {/* Card inputs — group stage only (used for disciplinary tiebreaker) */}
+         {/* Card inputs — disabled for now, re-enable when disciplinary tiebreaker is needed
           {!isKnockout && (
             <div className="border border-ink/10 rounded-xl px-3 py-2.5 bg-white/50">
               <p className="text-[10px] text-ink/40 uppercase tracking-wider mb-2">
                 Cards · Y=1pt · Direct red=3pts · Y+R=3pts
               </p>
               <div className="grid grid-cols-[1fr_auto_auto] gap-x-2 gap-y-1.5 items-center text-xs">
-                {/* Header row */}
                 <span />
                 <span className="text-[10px] text-ink/35 text-center w-10">Home</span>
                 <span className="text-[10px] text-ink/35 text-center w-10">Away</span>
-                {/* Yellow cards */}
                 <span className="text-ink/65">🟨 Yellow</span>
                 <input
                   name="homeYellowCards"
@@ -176,7 +174,6 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
                   defaultValue={match.score?.awayYellowCards ?? 0}
                   className="w-10 h-8 text-sm text-center text-ink bg-white border border-dashed border-ink/20 rounded-lg focus:outline-none focus:border-solid focus:border-gold transition-colors"
                 />
-                {/* Red cards */}
                 <span className="text-ink/65">🟥 Red</span>
                 <input
                   name="homeRedCards"
@@ -199,6 +196,7 @@ export function ScoreModal({ match, onClose, isKnockout = false }: Props): React
               </div>
             </div>
           )}
+          */}
 
           {state.error && (
             <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2 text-center">
