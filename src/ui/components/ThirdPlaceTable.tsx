@@ -43,8 +43,8 @@ export function ThirdPlaceTable({ rankedThirds }: Props): React.ReactElement {
 
             {eliminated.length > 0 && (
               <tr>
-                <td colSpan={11} className="py-0.5">
-                  <div className="border-t border-dashed border-ink/10" />
+                <td colSpan={11} className="py-0.4">
+                  <div className="" />
                 </td>
               </tr>
             )}
@@ -81,7 +81,7 @@ function ThirdRow({
 
   return (
     /* Dashed lines between data rows (no bg color) */
-    <tr className="border-b border-dashed border-ink/10 last:border-0">
+    <tr className="border-b border-dashed border-ink/10 last:border-0 [&:nth-child(8)]:border-gold/70">
       <td className="text-center py-1 pr-1 text-ink/35 tabular-nums">{rank}</td>
       <td className="text-center py-1 px-1">
         <span className={`font-semibold tabular-nums ${qualifies ? 'text-blue-500' : 'text-ink/35'}`}>

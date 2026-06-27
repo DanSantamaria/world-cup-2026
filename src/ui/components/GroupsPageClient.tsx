@@ -71,7 +71,7 @@ function GroupCard({ groupName, standings, matches, onMatchClick, qualifyingThir
       </div>
 
       {/* Divider */}
-      <div className="mx-4 border-t border-dashed border-gold/30 my-1.5" />
+      <div className="mx-4 my-1 border-t border-dashed border-gold-dark/50" />
 
       {/* Matches */}
       <div className="px-2 pb-3 space-y-0">
@@ -117,7 +117,7 @@ function MatchRow({ match, onClick }: MatchRowProps): React.ReactElement {
       onClick={onClick}
       className="w-full text-left rounded px-2 py-1.5 hover:bg-ink/4 active:bg-ink/8 transition-colors group"
     >
-      <div className="flex items-center gap-1 min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
         {/* Date — gold auxiliary text */}
         <span className="shrink-0 text-[10px] text-gold w-12 tabular-nums font-medium">
           {match.matchDate ?? `#${match.matchNumber}`}
