@@ -8,6 +8,7 @@ import { getAllGroupStageData } from '@/infrastructure/db/queries/groups';
 import { getUserScoresForMatches } from '@/infrastructure/db/queries/scores';
 import { calculateStandings } from '@/use-cases/calculateStandings';
 import { determineAdvancing } from '@/use-cases/determineAdvancing';
+import { assignThirdsToSlots } from '@/use-cases/buildBracket';
 import { formatDayHeader, formatRoundLabel, toMadridTime, toMadridDateKey } from '@/lib/timezone';
 import { Footer } from '@/ui/components/Footer';
 import { JumpToTodayButton } from '@/ui/components/JumpToTodayButton';
@@ -98,7 +99,21 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
   });
   const slotMap = determineAdvancing(groupResults);
 
-  // Resolve knockout teams that the DB stores as slot labels (e.g. "1A", "2B")
+  // Resolve composite 3rd-place slots like "3AEHIJ" using the same CSP logic as
+  // the bracket page (assignThirdsToSlots includes the official FIFA allocation fix).
+  const thirdSlotLabels = [
+    ...new Set(
+      rows
+        .flatMap((r) => [r.homeSlot, r.awaySlot])
+        .filter((s): s is string => !!s && s.startsWith('3') && s.length > 2),
+    ),
+  ];
+  const thirdSlots = assignThirdsToSlots(slotMap, thirdSlotLabels);
+  for (const [label, team] of thirdSlots) {
+    if (team) slotMap.set(label, team);
+  }
+
+  // Resolve knockout teams that the DB stores as slot labels (e.g. "1A", "2B", "3AEHIJ")
   const resolvedRows = rows.map((row) => ({
     ...row,
     homeTeam: row.homeTeam ?? (row.homeSlot ? (slotMap.get(row.homeSlot) ?? null) : null),

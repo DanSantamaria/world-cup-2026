@@ -24,7 +24,7 @@ function fmt(date: Date): string {
 // eligible thirds left). Verified zero failures across all 4950 combinations
 // in test. The official FIFA bracket always has a valid assignment.
 
-function assignThirdsToSlots(
+export function assignThirdsToSlots(
   slotMap: Map<string, Team>,
   thirdSlotLabels: string[],
 ): Map<string, Team | undefined> {
