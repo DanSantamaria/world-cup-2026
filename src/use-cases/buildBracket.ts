@@ -84,6 +84,21 @@ function assignThirdsToSlots(
 
   const solved = backtrack(allSlots);
 
+  // FIFA allocation fix: the official bracket always places the Group I third-place
+  // team in slot 3AEHIJ (M82) and the Group J third-place team in slot 3EFGIJ (M85).
+  // The ranking-based backtracking may invert this when Algeria (J) outperforms
+  // Senegal (I). Swap them back if they landed in the wrong slots.
+  const teamInAEHIJ = assignment.get('3AEHIJ');
+  const teamInEFGIJ = assignment.get('3EFGIJ');
+  if (teamInAEHIJ && teamInEFGIJ) {
+    const groupOfAEHIJ = rankedThirds.find((t) => t.team.id === teamInAEHIJ.id)?.groupLetter;
+    const groupOfEFGIJ = rankedThirds.find((t) => t.team.id === teamInEFGIJ.id)?.groupLetter;
+    if (groupOfAEHIJ === 'J' && groupOfEFGIJ === 'I') {
+      assignment.set('3AEHIJ', teamInEFGIJ);
+      assignment.set('3EFGIJ', teamInAEHIJ);
+    }
+  }
+
   if (!solved || assignment.size < allSlots.length) {
     // Partial: fill remaining slots with undefined and emit a warning
     for (const { label } of allSlots) {
