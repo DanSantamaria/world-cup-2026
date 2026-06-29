@@ -113,7 +113,38 @@ export default async function MatchesPage(): Promise<React.ReactElement> {
     if (team) slotMap.set(label, team);
   }
 
-  // Resolve knockout teams that the DB stores as slot labels (e.g. "1A", "2B", "3AEHIJ")
+  // Iteratively resolve WM/LM slots through the knockout rounds.
+  // Rows are already sorted by matchDate+matchNumber from the query, so processing
+  // them in order means M73 is resolved before M89 (which needs WM73), etc.
+  for (const row of rows) {
+    if (row.round === 'group') continue;
+
+    const homeTeam = row.homeTeam ?? (row.homeSlot ? (slotMap.get(row.homeSlot) ?? null) : null);
+    const awayTeam = row.awayTeam ?? (row.awaySlot ? (slotMap.get(row.awaySlot) ?? null) : null);
+
+    if (!row.score || !homeTeam || !awayTeam) continue;
+
+    const { homeGoals, awayGoals, homePenalties, awayPenalties } = row.score;
+    let winner = null;
+    let loser = null;
+
+    if (homeGoals > awayGoals) {
+      winner = homeTeam; loser = awayTeam;
+    } else if (awayGoals > homeGoals) {
+      winner = awayTeam; loser = homeTeam;
+    } else if (homePenalties !== null && awayPenalties !== null) {
+      if (homePenalties > awayPenalties) {
+        winner = homeTeam; loser = awayTeam;
+      } else if (awayPenalties > homePenalties) {
+        winner = awayTeam; loser = homeTeam;
+      }
+    }
+
+    if (winner) slotMap.set(`WM${row.matchNumber}`, winner);
+    if (loser)  slotMap.set(`LM${row.matchNumber}`, loser);
+  }
+
+  // Resolve all slot labels (1A, 2B, 3AEHIJ, WM73, LM101…) using the fully populated map
   const resolvedRows = rows.map((row) => ({
     ...row,
     homeTeam: row.homeTeam ?? (row.homeSlot ? (slotMap.get(row.homeSlot) ?? null) : null),

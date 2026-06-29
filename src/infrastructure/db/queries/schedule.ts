@@ -14,7 +14,7 @@ export interface ScheduleMatchRow {
   awayTeam: Team | null;
   homeSlot: string | null;
   awaySlot: string | null;
-  score: { homeGoals: number; awayGoals: number } | null;
+  score: { homeGoals: number; awayGoals: number; homePenalties: number | null; awayPenalties: number | null } | null;
 }
 
 export async function getScheduleMatches(userId: number): Promise<ScheduleMatchRow[]> {
@@ -42,7 +42,14 @@ export async function getScheduleMatches(userId: number): Promise<ScheduleMatchR
       awayTeam: m.awayTeamId ? (teamsById.get(m.awayTeamId) ?? null) : null,
       homeSlot: m.homeSlot,
       awaySlot: m.awaySlot,
-      score: score ? { homeGoals: score.homeGoals, awayGoals: score.awayGoals } : null,
+      score: score
+        ? {
+            homeGoals: score.homeGoals,
+            awayGoals: score.awayGoals,
+            homePenalties: score.homePenalties,
+            awayPenalties: score.awayPenalties,
+          }
+        : null,
     };
   });
 }
